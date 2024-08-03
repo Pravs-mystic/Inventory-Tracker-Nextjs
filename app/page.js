@@ -7,28 +7,22 @@ import { db } from './firebase';
 import Camera from './camera';
 
 export default function Home() {
-
   const [items, setItems] = useState([]);
-
   const [newItem, setNewItem] = useState({ name: '', quantity: '' });
 
   // add item to database
-  const addItem = async (e) => {
-    e.preventDefault();
-    if (newItem.name === '' || newItem.quantity === '') return;
+  const addItem = async (item) => {
+    if (item.name === '' || item.quantity === '') return;
   
     // Check if the item already exists
-    const q = query(collection(db, "items"), where("name", "==", newItem.name));
+    const q = query(collection(db, "items"), where("name", "==", item.name));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       alert("Item already exists!");
       return;
     }
-    const docRef = await addDoc(collection(db, "items"), { name: newItem.name, quantity: parseInt(newItem.quantity) });
-    // await updateInventory();
-    // setNewItem({ name: '', quantity: '' });
-    setItems([...items, { ...newItem, id: docRef.id }]);
-    setNewItem({ name: '', quantity: '' });
+    const docRef = await addDoc(collection(db, "items"), { name: item.name, quantity: parseInt(item.quantity) });
+    setItems([...items, { ...item, id: docRef.id }]);
   };
 
   //getData
@@ -83,69 +77,67 @@ export default function Home() {
       }
     }
   };
-
-  useEffect(() => {
+useEffect(() => {
     console.log('useEffectitems', items);
     updateInventory();
   }, []);
 
   return (
     <main>
-        <div className="container">
-          <h1 className="display-4 text-center text-dark p-4 fw-bold bg-light bg-opacity-75 mx-4">Inventory Tracker</h1>
-        </div>
-        <div className="container d-flex flex-row mt-5 w-80">
-          <Camera className="col-12 col-md-6"/>
-          
-          <div className="bg-dark p-4 rounded-lg container col-12 col-md-6">
-            <form className="row g-3 align-items-center" action="">
-              <div className="col-12 col-md-4">
-                <input
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value.toLowerCase() })}
-                  className='form-control' type="text" placeholder="Enter Item" />
-              </div>
-              <div className="col-12 col-md-4">
-                <input value={newItem.quantity}
-                  onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
-                  className='form-control' type="number" placeholder="Enter Quantity" />
-              </div>
-              <div className="col-12 col-md-4">
-                <button
-                  onClick={addItem}
-                  className="btn btn-primary w-100" type="submit">Add to Inventory</button>
-              </div>
-            </form>
+      <div className="container">
+        <h1 className="display-4 text-center text-dark p-4 fw-bold bg-light bg-opacity-75 mx-4">Inventory Tracker</h1>
+      </div>
+      <div className="container d-flex flex-row mt-5 w-80">
+        <Camera addItemToInventory={addItem} className="col-12 col-md-6"/>
+        
+        <div className="bg-dark p-4 rounded-lg container col-12 col-md-6">
+          <form className="row g-3 align-items-center" onSubmit={(e) => { e.preventDefault(); addItem(newItem); }}>
+            <div className="col-12 col-md-4">
+              <input
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value.toLowerCase() })}
+                className='form-control' type="text" placeholder="Enter Item" />
+            </div>
+            <div className="col-12 col-md-4">
+              <input value={newItem.quantity}
+                onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
+                className='form-control' type="number" placeholder="Enter Quantity" />
+            </div>
+            <div className="col-12 col-md-4">
+              <button
+                className="btn btn-primary w-100" type="submit">Add to Inventory</button>
+            </div>
+          </form>
 
-            <ul className="list-group mt-4">
-              {items.map((item, id) => (
-                <li key={id} className="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white">
-                  <div className="d-flex justify-content-between w-50">
-                    <span className="text-capitalize">{item.name}</span>
-                    <span>{item.quantity}</span>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => addQuantity(item)}
-                      className="btn btn-success btn-sm m-2">
-                      +
-                    </button>
-                    <button
-                      onClick={() => removeQuantity(item)}
-                      className="btn btn-danger btn-sm m-2">
-                      -
-                    </button>
-                    <button
-                      onClick={() => deleteItem(item.id)}
-                      className="btn btn-warning btn-sm m-2">
-                      X
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="list-group mt-4">
+            {items.map((item, id) => (
+              <li key={id} className="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white">
+                <div className="d-flex justify-content-between w-50">
+                  <span className="text-capitalize">{item.name}</span>
+                  <span>{item.quantity}</span>
+                </div>
+                <div>
+                  <button
+                    onClick={() => addQuantity(item)}
+                    className="btn btn-success btn-sm m-2">
+                    +
+                  </button>
+                  <button
+                    onClick={() => removeQuantity(item)}
+                    className="btn btn-danger btn-sm m-2">
+                    -
+                  </button>
+                  <button
+                    onClick={() => deleteItem(item.id)}
+                    className="btn btn-warning btn-sm m-2">
+                    X
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
+      </div>
     </main>
   );
 }
