@@ -42,7 +42,7 @@ export default function Camera({ addItemToInventory }) {
                     },
                 ],
             });
-            setItemName(response.choices[0].message.content);
+            setItemName(response.choices[0].message.content.replace(/\.$/, ''));
         } catch (error) {
             console.error("Error classifying image:", error);
             setItemName("Unknown Item");

@@ -17,14 +17,18 @@ export default function Home() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       if (user) {
-        updateInventory();
+        const inventoryUnsubscribe = updateInventory();
+        return () => {
+          inventoryUnsubscribe && inventoryUnsubscribe();
+        };
       } else {
         setItems([]);
       }
     });
-
+  
     return () => unsubscribe();
   }, []);
+  
 
   const signIn = async () => {
     try {
@@ -48,20 +52,24 @@ export default function Home() {
   const addItem = async (item) => {
     if (item.name === '' || item.quantity === '') return;
   
-    // Check if the item already exists
-    const q = query(collection(db, "items"), where("name", "==", item.name));
+    const q = query(collection(db, "items"), where("name", "==", item.name), where("userId", "==", user.uid));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       alert("Item already exists!");
       return;
     }
-    const docRef = await addDoc(collection(db, "items"), { name: item.name, quantity: parseInt(item.quantity) });
+    const docRef = await addDoc(collection(db, "items"), { 
+      name: item.name, 
+      quantity: parseInt(item.quantity),
+      userId: user.uid 
+    });
     setItems([...items, { ...item, id: docRef.id }]);
   };
 
   //getData
   const updateInventory = async () => {
-    const q = query(collection(db, "items"));
+    if (!user) return; 
+    const q = query(collection(db, "items"), where("userId", "==", user.uid)); 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const items = [];
       querySnapshot.forEach((doc) => {
@@ -181,7 +189,7 @@ export default function Home() {
                 
                 <div className="col-12 col-md-6 p-3 bg-white rounded shadow-sm">
                   <div className="p-4 rounded-lg">
-                    <form className="row g-3" onSubmit={(e) => { e.preventDefault(); addItem(newItem); }}>
+                    <form className="row g-3" onSubmit={(e) => { e.preventDefault(); addItem(newItem); setNewItem({name:'', quantity:''}) }}>
                       <div className="col-12 col-sm-4">
                         <input
                           value={newItem.name}
