@@ -65,7 +65,7 @@ export default function Camera({ addItemToInventory }) {
 
     return (
         <div className="flex-container d-flex flex-column align-items-center">
-            <h4>Do you want to add an item through Camera?</h4>
+            <h4 className='shadow p-4 mx-2 bg-light bg-gradient'>Do you want to add an item through Camera?</h4>
             <button className="w-25 btn btn-outline-primary mt-4" onClick={() => setCamera(true)}>
                 Take a picture
             </button>
@@ -75,8 +75,8 @@ export default function Camera({ addItemToInventory }) {
             {capturedImage && (
                 <div className="mt-4 d-flex flex-column align-items-center">
                     <img src={capturedImage} alt="Captured item" className="img-fluid" style={{ maxWidth: '300px' }} />
-                    <h3 className="mt-3">Item Name: {itemName}</h3>
-                    <button className="btn btn-primary mt-3" onClick={handleAddToInventory}>
+                    <h4 className="mt-3 p-4 mx-2 bg-light shadow-sm">Item Name: {itemName}</h4>
+                    <button className="btn mt-3 bg-primary bg-gradient text-white" onClick={handleAddToInventory}>
                         Update the item to Inventory
                     </button>
                 </div>
