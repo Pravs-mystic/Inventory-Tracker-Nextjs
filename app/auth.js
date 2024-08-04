@@ -1,6 +1,6 @@
 import React from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { auth as authy, googleProvider } from '../firebase';
 
 
 const auth = ({ user, setUser }) => {
