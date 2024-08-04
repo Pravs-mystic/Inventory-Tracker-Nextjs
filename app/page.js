@@ -17,10 +17,8 @@ export default function Home() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       if (user) {
-        const inventoryUnsubscribe = updateInventory();
-        return () => {
-          inventoryUnsubscribe && inventoryUnsubscribe();
-        };
+        updateInventory(user);
+       
       } else {
         setItems([]);
       }
@@ -67,9 +65,12 @@ export default function Home() {
   };
 
   //getData
-  const updateInventory = async () => {
-    if (!user) return; 
-    const q = query(collection(db, "items"), where("userId", "==", user.uid)); 
+  const updateInventory = async (tUser) => {
+    if (!tUser) {
+      return
+    }; 
+    console.log('tUser UI', tUser);
+    const q = query(collection(db, "items"), where("userId", "==", tUser.uid)); 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const items = [];
       querySnapshot.forEach((doc) => {
